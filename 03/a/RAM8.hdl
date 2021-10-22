@@ -3,6 +3,8 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/03/a/RAM8.hdl
 
+// Andrew Hepworth
+
 /**
  * Memory of 8 registers, each 16 bit-wide. Out holds the value
  * stored at the memory location specified by address. If load==1, then 
@@ -15,5 +17,16 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    DMux8Way(in = load, sel = address, a = r1, b = r2, c = r3, d = r4, e = r5, f = r6, g = r7, h = r8);
+
+    Register(in = in, load = r1, out = regout1);
+    Register(in = in, load = r2, out = regout2);
+    Register(in = in, load = r3, out = regout3);
+    Register(in = in, load = r4, out = regout4);
+    Register(in = in, load = r5, out = regout5);
+    Register(in = in, load = r6, out = regout6);
+    Register(in = in, load = r7, out = regout7);
+    Register(in = in, load = r8, out = regout8);
+
+    Mux8Way16(a = regout1, b = regout2, c = regout3, d = regout4, e = regout5, f = regout6, g = regout7, h = regout8, sel = address, out = out);
 }
