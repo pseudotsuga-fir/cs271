@@ -18,10 +18,10 @@ char *strip(char *s) {
 	int i = 0;
 
 	for (char *s2 = s; *s2; s2++) {
-		if(*s2 == '/' && *(s + 1) == '/') {
+		if(*s2 == '/' || *(s + 1) == '/') {
 			break;
 		}
-		else if(!isspace(*s2)) {
+		if(!isspace(*s2)) {
 			s_new[i++] = *s2;
 		}
 	}
