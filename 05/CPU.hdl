@@ -3,6 +3,8 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/05/CPU.hdl
 
+// Andrew Hepworth
+
 /**
  * The Hack CPU (Central Processing unit), consisting of an ALU,
  * two registers named A and D, and a program counter named PC.
@@ -39,5 +41,38 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // A
+    Not(in=instruction[15], out=aSel);
+    Or(a=aSel, b=instruction[5], out=aLoad);
+    Mux16(a=instruction, b=ALUOut, sel=instruction[15], out=aMux);
+    ARegister(in=aMux, load=aLoad, out=aOut, out[0..14]=addressM);
+    
+    // D
+    And(a=instruction[15], b=instruction[4], out=dLoad);
+    DRegister(in=ALUOut, load=dLoad, out=dOut);
+
+    // ALU
+    Mux16(a=aOut, b=inM, sel=instruction[12], out=ALUMux);
+    ALU(x=dOut, y=ALUMux, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=ALUOut, out=outM, zr=zr, ng=ng);
+    
+    // Jumps
+    Not(in=zr, out=notZr);
+    Not(in=ng, out=notNg);
+    And(a=notZr, b=notNg, out=pos);
+    And(a=instruction[15], b=instruction[2], out=jlt);
+    And(a=instruction[15], b=instruction[1], out=jeq);
+    And(a=instruction[15], b=instruction[0], out=jgt);
+    
+    And(a=jlt, b=ng, out=posLt);
+    And(a=jeq, b=zr, out=posEq);
+    And(a=jgt, b=pos, out=posGt);
+    Or(a=posLt, b=posEq, out=tempPos);
+    Or(a=tempPos, b=posGt, out=load);
+
+    // WriteM
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    // PC
+    PC(in=aOut, load=load, inc=true, reset=reset, out[0..14]=pc);
+
 }
