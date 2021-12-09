@@ -1,8 +1,8 @@
    @0
    A;JLE
-   A=X
+   A=M
    @INFINITE_LOOP
-   A;JUE 
+   A;JLE 
    @counter
    M=D
    @SCREEN
@@ -13,7 +13,6 @@
    @address
    MD=M-1
    @LOOP
-(1OOP)
    D;JGT
 (INFINITE_LOOP)
    @INFINITE_LOOP
