@@ -166,35 +166,52 @@ void parse_C_instruction(char *line, c_instruction *instr) {
 
 void assemble(const char * file_name, instruction* instructions, int num_instructions) {
         FILE * file;
-        //char *out_file_name;
-        //strcpy(out_file_name, file_name);
-        //strcat(out_file_name, ".hack");
+        char out_file_name[80];
+        strcpy(out_file_name, file_name);
+        strcat(out_file_name, ".hack");
 
-        //file = fopen(out_file_name, "w+");
+        file = fopen(out_file_name, "w+");
 
         for (int i = 0; i < num_instructions; i++) {
                 opcode opcode;
-
+		int symtable_index = 16;
                 if (instructions[i].a_c_type == Atype) {
                         // I am an A-Type instruction...
-                        if (instructions[i].a_or_c.a_ins.is_addr) {
+                        a_instruction instruction = instructions[i].a_or_c.a_ins;
+                        if (instruction.is_addr) {
                                 // that holds an address.
-                                opcode = instructions[i].a_or_c.a_ins.add_or_label.address;
-				// printf("%d\n", instructions[i].a_or_c.a_ins.add_or_label.address);
+                                opcode = instruction.add_or_label.address;
                         }
                         else {
-                                struct Symbol * label = symtable_find(instructions[i].a_or_c.a_ins.add_or_label.label);
+                                struct Symbol * label = symtable_find(instruction.add_or_label.label);
                                 // that holds a label...
                                 if (!label) {
                                         // that exists.
                                         opcode = label->addr;
                                 }
                                 else {
+                                        symtable_insert(instruction.add_or_label.label, symtable_index);
+                                        opcode = symtable_find(instruction.add_or_label.label)->addr;
+                                        symtable_index++;
                                 }
                         }
                 }
                 else {
                         c_instruction instruction = instructions[i].a_or_c.c_ins;
+                        opcode = instruction_to_opcode(instruction);
                 }
+		printf("%d\n",opcode);
         }
+        fclose(file);
 }
+
+opcode instruction_to_opcode(c_instruction instr) {
+        opcode op = 0;
+        op |= (7 << 13);
+        op |= (instr.a << 12);
+        op |= (instr.comp << 6);
+        op |= (instr.dest << 3);
+        op |= instr.jump;
+        return op;
+}
+

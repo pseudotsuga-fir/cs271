@@ -20,6 +20,8 @@ int main(int argc, const char *argv[]) {
     instruction *instructions = malloc(MAX_INSTRUCTION_COUNT * sizeof(instruction));
     int num_instructions = parse(fin, instructions);
     fclose(fin);
+    
+    assemble(argv[1], instructions, num_instructions);
 
     free(instructions);
     
