@@ -10,19 +10,19 @@ int hash(char *str) {
         return (hash % SYMBOL_TABLE_SIZE);	
 }
 
-struct Symbol *symtable_find(char * key) {
-	int hashIndex = hash(key);  
+struct Symbol *symtable_find(char *name) {
+        int hashIndex = hash(name);
 
-	while(hashArray[hashIndex] != NULL) {
+        while(hashArray[hashIndex] != NULL) {
 
-		if (hashArray[hashIndex]->name == key)
-			return hashArray[hashIndex];
-		++hashIndex;
+                if(strcmp(hashArray[hashIndex]->name, name) == 0) {
+                        return hashArray[hashIndex];
+                }
+                ++hashIndex;
 
-		hashIndex %= SYMBOL_TABLE_SIZE;
-	}
-
-	return NULL;
+                hashIndex %= SYMBOL_TABLE_SIZE;
+        }
+        return NULL;
 }
 
 void symtable_insert(char* key, hack_addr addr) {

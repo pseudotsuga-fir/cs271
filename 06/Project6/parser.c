@@ -64,7 +64,6 @@ int parse(FILE * file, instruction *instructions) {
 		}
 
 		printf("%c  %s\n", inst_type, line);
-		instr_num += 1;
 		instructions[instr_num++] = instr;
 	}
 	return instr_num;
@@ -127,22 +126,24 @@ void add_predefined_symbols() {
 }
 
 bool parse_A_instruction(const char *line, a_instruction *instr){
-	char *s;
-	s = (char*) malloc(strlen(line));
-	strcpy(s, line+1);
-	char *s_end = NULL;
-	long result = strtol(s, &s_end, 10);
-	if (strcmp(s, s_end) == 0) {
-		instr->add_or_label.label = (char*) malloc(strlen(line));
-	}
-	else if (*s_end != 0){
-		return false;
-	}
-	else {
-		instr->add_or_label.address = result;
-		instr->is_addr = true;
-	}
-	return true;
+        char *s;
+        s = (char*) malloc(strlen(line));
+        strcpy(s, line+1);
+        char *s_end = NULL;
+        long result = strtol(s, &s_end, 10);
+        if (strcmp(s, s_end) == 0) {
+                instr->add_or_label.label = (char*) malloc(strlen(line) + 1);
+                strcpy(instr->add_or_label.label, s);
+                instr->is_addr = false;
+        }
+        else if (*s_end != 0){
+                return false;
+        }
+        else {
+                instr->add_or_label.address = result;
+                instr->is_addr = true;
+        }
+        return true;
 }
 
 void parse_C_instruction(char *line, c_instruction *instr) {
@@ -172,9 +173,11 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
 
         file = fopen(out_file_name, "w+");
 
+        int symtable_index = 16;
+
         for (int i = 0; i < num_instructions; i++) {
                 opcode opcode;
-		int symtable_index = 16;
+
                 if (instructions[i].a_c_type == Atype) {
                         // I am an A-Type instruction...
                         a_instruction instruction = instructions[i].a_or_c.a_ins;
@@ -185,7 +188,7 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
                         else {
                                 struct Symbol * label = symtable_find(instruction.add_or_label.label);
                                 // that holds a label...
-                                if (!label) {
+                                if (label != NULL) {
                                         // that exists.
                                         opcode = label->addr;
                                 }
@@ -200,10 +203,12 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
                         c_instruction instruction = instructions[i].a_or_c.c_ins;
                         opcode = instruction_to_opcode(instruction);
                 }
-		printf("%d\n",opcode);
+                fprintf(file, "test\n");
+		printf("%d\n", opcode);
         }
         fclose(file);
 }
+
 
 opcode instruction_to_opcode(c_instruction instr) {
         opcode op = 0;
